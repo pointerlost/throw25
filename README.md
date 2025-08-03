@@ -1,5 +1,7 @@
 # throwEngine
 
+(Attention! The builder for this project will be updated soon!)
+
 🎮 A cross-platform C++ game engine built with CMake and vcpkg.
 
 Designed for modularity, flexibility, and simplicity — this engine is ideal for learning or prototyping.
