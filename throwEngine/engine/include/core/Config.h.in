@@ -1,0 +1,15 @@
+#pragma once
+
+// Shaders folder
+#define SHADERS_DIR "@SHADERS_DIR@"
+
+// Assets folder
+#define ASSETS_DIR "@ASSETS_DIR@"
+#define MATERIALS_JSON_PATH "@ASSETS_DIR@/materialJSON/materials.json"
+
+// Shader config path
+#define SHADERS_CONFIG_PATH "@SHADERS_CONFIG_PATH@"
+
+#define CMAKE_CURRENT_BINARY_DIR "@CMAKE_CURRENT_BINARY_DIR@"
+
+#define CMAKE_CURRENT_SOURCE_DIR "@CMAKE_CURRENT_SOURCE_DIR@"

@@ -1,0 +1,26 @@
+If we send 3d vertex data to GPU, the following situation occurs;
+Object Space -> World Space -> View Space -> Clip Space -> Screen Space
+so the MVP(model-view-projection) does all these operations.
+
+what does do 'Model Matrix';
+- moves to object from its local(object) 'cs' to the world 'cs'.
+- Rotate, translate, scale operations are here.
+* input : Object Space - Output : World Space
+
+what does do 'View Matrix';
+- Simulates the camera's point of view.
+- It transforms everything on the stage according to the camera.
+- It is easily created with the glm::lookAt function.
+* input : World Space - Output : View Space(Camera space)
+Note:
+	At this stage, the camera doesn't seem to be moving,
+	everything in the scene seems to be moving in the opposite direction.
+
+what does do 'Projection Matrix';
+-   It applies perspective or orthographic transformation
+  to represent 3D space in a meaningful way on a 2D screen.
+- Perspective projection is especially important to give the perception of depth.
+
+input : View(Camera) Space - Output : Clip Space
+Note: The GPU looks at gl_Position at this point.
+
