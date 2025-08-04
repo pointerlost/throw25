@@ -17,6 +17,9 @@ struct Light {
     vec3 position;
     vec3 direction;
 
+    vec3 diffuse;
+    vec3 specular;
+
     float constant;
     float linear;
     float quadratic;
@@ -27,7 +30,7 @@ struct Light {
     int type;
 };
 
-uniform Light lights[1000];
+uniform Light lights[256];
 uniform uint activeLightCount;
 uniform vec3 globalAmbient;
 
@@ -87,8 +90,8 @@ vec3 CalcLight(Light light, vec3 norm, vec3 fragPos, vec3 viewDir)
         specularColor *= texture(material_specularTex, texCoords).rgb;
 
     vec3 ambient = globalAmbient * material.ambient;
-    vec3 diffuse = diffuseColor * diff;
-    vec3 specular = specularColor * spec;
+    vec3 diffuse = light.diffuse * diffuseColor * diff;
+    vec3 specular = light.specular * specularColor * spec;
 
     return (ambient + diffuse + specular) * attenuation * intensity;
 }

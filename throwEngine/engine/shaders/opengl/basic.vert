@@ -8,7 +8,6 @@ layout (location = 3) in vec2 aTexCoords;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-uniform vec3 viewPos;
 
 out vec3 normal;
 out vec3 color;

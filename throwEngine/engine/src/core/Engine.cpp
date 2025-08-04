@@ -73,7 +73,7 @@ namespace core {
 			glfwRenderEventStuff();
 		}
 
-		std::cout << "iwbs!" << "\n";
+		std::cout << "yeah!" << "\n";
 		return true;
 	}
 

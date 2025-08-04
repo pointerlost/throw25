@@ -81,13 +81,19 @@ namespace ENGINE::UI
 				(void)sceneObjectFactory->createSphere();
 			}
 			if (ImGui::Button("Point Light")) {
-				(void)sceneObjectFactory->createPointLight();
+				if (!sceneObjectFactory->createPointLight()) {
+					ImGui::Text("[ImGuiLayer::drawSceneEditorUI] can't created pointLight!");
+				}
 			}
 			if (ImGui::Button("Directional light")) {
-				(void)sceneObjectFactory->createDirectionalLight();
+				if (!sceneObjectFactory->createDirectionalLight()) {
+					ImGui::Text("[ImGuiLayer::drawSceneEditorUI] can't created directionalLight!");
+				}
 			}
 			if (ImGui::Button("Spot Light")) {
-				(void)sceneObjectFactory->createSpotLight();
+				if (!sceneObjectFactory->createSpotLight()) {
+					ImGui::Text("[ImGuiLayer::drawSceneEditorUI] can't created spotLight!");
+				}
 			}
 		}
 
@@ -222,7 +228,7 @@ namespace ENGINE::UI
 
 		const uint32_t objectsSize = sceneObjects.size();
 
-		ImGui::SetNextWindowSize(ImVec2(static_cast<float>(objectsSize * 20), static_cast<float>(objectsSize * 20)), ImGuiCond_Once);
+		ImGui::SetNextWindowSize(ImVec2(200, static_cast<float>(objectsSize * 35)), ImGuiCond_Once);
 
 		// ImGuiScopedWindow is a RAII wrapper for ImGui::Begin() and ImGui::End()
 		if (const ImGuiScopedWindow objectList("Scene Objects", &m_showObjectListWindow); objectList)

@@ -13,15 +13,25 @@ namespace LIGHTING
 		// m_lightData->setPosition(m_SceneObject->getTransform()->getPosition());
 	}
 
-	void Light::update(const std::shared_ptr<SCENE::SceneObject>& lightObject) const
+	void Light::update(const std::shared_ptr<Light>& light) const
 	{
-		m_lightData->setPosition(lightObject->getTransform()->getPosition());
-		m_lightData->calculateDirection(lightObject->getTransform()->getPosition());
+		if (!light) {
+			Logger::warn("[Light::update]: light is null");
+			return;
+		}
+		const auto& visual = light->getVisual();
+		if (!visual) {
+			Logger::warn("[Light::update] visual object expired!");
+			return;
+		}
+		m_lightData->setPosition(visual->getTransform()->getPosition());
+		// I'll create an object-based direction, we are use scene center for now (later)
+		m_lightData->calculateDirection(light);
 	}
 
-	std::weak_ptr<SCENE::SceneObject> Light::getVisual() const {
-		if (m_visual.expired()) {
-			Logger::warn("[Light] Visual object has expired!\n");
+	std::shared_ptr<SCENE::SceneObject> Light::getVisual() const {
+		if (!m_visual) {
+			Logger::warn("[Light] Visual object nullptr!\n");
 			return {};
 		}
 		return m_visual;

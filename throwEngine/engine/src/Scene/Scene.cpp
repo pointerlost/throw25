@@ -75,9 +75,13 @@ namespace SCENE
 			Logger::error("Scene can't setup m_sceneObjectFactory is nullptr!");
 		}
 
-		(void)sceneObjectFactory->createSpotLight();
+		if (!sceneObjectFactory->createSpotLight()) {
+			Logger::warn("Can't create spotlight object!");
+		}
 
-		(void)sceneObjectFactory->createPointLight();
+		if (!sceneObjectFactory->createPointLight()) {
+			Logger::warn("Can't create pointLight object!");
+		}
 
 		(void)sceneObjectFactory->createCube();
 
@@ -104,12 +108,12 @@ namespace SCENE
 				return;
 			}
 		}
-		
+
 		if (!m_gridSystem) {
 			Logger::warn("[Scene::initGrid] m_gridSystem returning nullptr");
 			return;
 		}
-		
+
 		// this function receives messages from the "Logger", no need to retrieve them again
 		if (!m_gridSystem->getRenderer()->setGridShaderInterface(gridShader))
 			return;
@@ -138,6 +142,9 @@ namespace SCENE
 
 		// cleanup marked objects to delete at the beginning
 		cleanUpMarkedObjects();
+
+		// if marked any visual light object, first clear the lights before clean the scene
+		renderData->getLightManager()->cleanupExpiredLights();
 		for (const auto& obj : m_sceneObjectsVec)
 		{
 			if (!obj) {
@@ -199,7 +206,7 @@ namespace SCENE
 			objectID = m_objectIDMap[name];
 			m_objectIDMap.erase(name);
 		} else {
-			Logger::warn("[Scene::deleteObjectFromScene] Object '" + name + "' doesn't exist!");
+			Logger::warn("[Scene::deleteObjectFromScene] Object ID of '" + name + "' doesn't exist!");
 			return;
 		}
 
@@ -229,7 +236,7 @@ namespace SCENE
 			}
 		}
 
-		// Cleanup marked pointers
+		// Cleanup marked pointers from vec
 		std::erase_if(m_sceneObjectsVec,
 			[](const std::shared_ptr<SceneObject>& ptr) {
               return ptr ? ptr->isMarkedForDeletion() : false;

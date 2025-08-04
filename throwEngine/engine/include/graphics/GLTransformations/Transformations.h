@@ -15,32 +15,37 @@ namespace GLgraphics
 		Transformations() = default;
 		~Transformations() = default;
 
-		void setPosition(const glm::vec3& pos);
+		// glm::normalize returns a temporary glm::vec3, so don't return with const reference
+		glm::vec3 getForward() const { return glm::normalize(glm::vec3(m_cachedModelMatrix[2])); };
+
 		void setRotation(float angleInDegrees, const glm::vec3& axis);
-		glm::vec3 getRotationAxis() const { return rotationAxis; };
+		[[nodiscard]] glm::vec3 getRotationAxis() const { return rotationAxis; };
 
 		void setRotationAngle(float angleInDegrees) { rotationAngle = angleInDegrees; };
-		float getRotationAngle() const { return rotationAngle; };
+		[[nodiscard]] float getRotationAngle() const { return rotationAngle; };
 
-		void setScale(const glm::vec3& scaleVec);
-		glm::vec3 getScale() const { return scale; };
+		void setScale(const glm::vec3& scale);
+		[[nodiscard]] const glm::vec3& getScale() const { return scale; };
 
 		void addRotation(float angleInDegrees, const glm::vec3& axis);
 
-		glm::vec3 getPosition() const { return position; };
+		void setPosition(const glm::vec3& pos);
+		[[nodiscard]] const glm::vec3& getPosition() const { return position; };
 
 		void updateAll(const glm::vec3& angles, const glm::vec3& pos, const glm::vec3& scaleVec);
 
 		void resetAll();
 
-		glm::mat4 getModelMatrix() const;
+		[[nodiscard]] const glm::mat4& getModelMatrix() const;
 
 		void setEulerAngles(const glm::vec3& angles) { eulerAngles = angles; };
-		glm::vec3 getEulerAngles() const { return eulerAngles; }
+		[[nodiscard]] const glm::vec3& getEulerAngles() const { return eulerAngles; }
 
 		void setPitchYawRoll(float pitch, float yaw, float roll) { eulerAngles = glm::vec3(pitch, yaw, roll); };
 
 	private:
+
+		void markDirty() const;
 
 		glm::vec3 position = glm::vec3(0.0f);
 		glm::vec3 rotationAxis = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -48,6 +53,10 @@ namespace GLgraphics
 		glm::vec3 scale = glm::vec3(1.0f);
 		glm::mat4 rotationMatrix = glm::mat4(1.0f);
 		glm::vec3 eulerAngles = glm::vec3(0.0f);
+
+		// optimization
+		mutable glm::mat4 m_cachedModelMatrix = glm::mat4(1.0f);
+		mutable bool m_modelMatrixDirty = true;
 	};
 }
 

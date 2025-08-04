@@ -48,7 +48,7 @@ namespace SCENE
 		[[nodiscard]] std::shared_ptr<MATERIAL::Material> getMaterialInstance() const { return m_materialInstance; };
 		[[nodiscard]] std::string getMaterialName() const { return m_materialName; };
 
-		void setShaderInterface(const std::shared_ptr<SHADER::IShader> shader);
+		void setShaderInterface(std::shared_ptr<SHADER::IShader> shader);
 		[[nodiscard]] std::shared_ptr<SHADER::IShader> getShaderInterface() const { return m_shaderInterface; };
 
 		void draw(const glm::mat4& view, const glm::mat4& projection, const std::shared_ptr<GLgraphics::RenderData>& renderData);
@@ -67,9 +67,6 @@ namespace SCENE
 
 		void markForDeletion() { m_markedForDeletion = true; };
 		[[nodiscard]] bool isMarkedForDeletion() const { return m_markedForDeletion; };
-
-		void setMobility(LIGHTING::LightMobility mobility) { m_mobility = mobility; };
-		[[nodiscard]] LIGHTING::LightMobility getMobility() const { return m_mobility; };
 
 	private:
 
@@ -92,8 +89,5 @@ namespace SCENE
 		bool m_markedForDeletion = false;
 
 		uint32_t m_objectID = -1;
-
-		// if it is a light object we are this object using for lighting
-		LIGHTING::LightMobility m_mobility;
 	};
 }

@@ -73,93 +73,105 @@ namespace SCENE
         addMesh("circle");
     }
 
-    std::shared_ptr<SceneObject> SceneObjectFactory::createCube(const std::string& materialName) const
+    std::shared_ptr<SceneObject> SceneObjectFactory::createCube(const glm::vec3& pos, const std::string& materialName, bool visualLightObj) const
     {
         // Create cube as a scene object
-        const auto cube = std::make_shared<SceneObject>(
+        auto cube = std::make_shared<SceneObject>(
             std::make_shared<GLgraphics::MeshCube3D>(m_pImpl->meshData,
                 m_pImpl->meshData->getObjectInfo("cube")), materialName
         );
+        cube->getTransform()->setPosition(pos);
+
+        if (!cube) {
+            Logger::warn("[SceneObjectFactory::createCube] cube is nullptr");
+            return {};
+        }
+
+  //       // Create an input component for the cube
+  //       const auto inputComponent = Input::InputComponentFactory::createObjectComponent(
+  //           Input::InputType::CubeInputComponent,
+  //           cube->getTransform()
+		// );
+  //
+  //       if (inputComponent) {
+		// 	cube->setInputComponent(inputComponent);
+  //       } else {
+  //           Logger::warn("[SceneObjectFactory::createCube] Input component creation failed.");
+		// }
+
         cube->setShaderInterface(m_renderData->getShaderInterface(BASIC_SHADER));
-
-        // Create an input component for the cube
-        const auto inputComponent = Input::InputComponentFactory::createObjectComponent(
-            Input::InputType::CubeInputComponent,
-            cube->getTransform()
-		);
-
-        if (inputComponent) {
-			cube->setInputComponent(inputComponent);
-        } else {
-            Logger::warn("[SceneObjectFactory::createCube] Input component creation failed.");
-		}
-
         cube->setName(generateName("cube"));
-        cube->setMobility(LIGHTING::LightMobility::NonType); // this object is not a light, so skip it
         cube->initializeMaterial(m_renderData->getMaterialLib());
         cube->getTransform()->setPosition(glm::vec3(0.0));
         cube->getTransform()->setScale(glm::vec3{ 7.5f, 7.5f, 7.5f });
 
-        m_scene->createObjectProperties(cube);
+        if (!visualLightObj)
+            m_scene->createObjectProperties(cube);
 
         return cube;
     }
 
-    std::shared_ptr<SceneObject> SceneObjectFactory::createSphere(const std::string& materialName) const
+    std::shared_ptr<SceneObject> SceneObjectFactory::createSphere(const glm::vec3& pos, const std::string& materialName, bool visualLightObj) const
     {
 		// Create a sphere object with the specified material and position
-        const auto sphere = std::make_shared<SceneObject>(
+        auto sphere = std::make_shared<SceneObject>(
             std::make_shared<GLgraphics::MeshSphere3D>(m_pImpl->meshData,
                 m_pImpl->meshData->getObjectInfo("sphere")), materialName
         );
+        sphere->getTransform()->setPosition(pos);
+
+        if (!sphere) {
+            Logger::warn("[SceneObjectFactory::createSphere] sphere is nullptr");
+            return {};
+        }
+
+        // // Create an input component for the cube
+        // const auto inputComponent = Input::InputComponentFactory::createObjectComponent(
+        //     Input::InputType::SphereInputComponent,
+        //     sphere->getTransform()
+        // );
+        //
+        // if (inputComponent) {
+        //     sphere->setInputComponent(inputComponent);
+        // }
+        // else {
+        //     Logger::warn("[SceneObjectFactory::createSphere] Input component creation failed.");
+        // }
+
         sphere->setShaderInterface(m_renderData->getShaderInterface(BASIC_SHADER));
-
-        // Create an input component for the cube
-        const auto inputComponent = Input::InputComponentFactory::createObjectComponent(
-            Input::InputType::SphereInputComponent,
-            sphere->getTransform()
-        );
-
-        if (inputComponent) {
-            sphere->setInputComponent(inputComponent);
-        }
-        else {
-            Logger::warn("[SceneObjectFactory::createSphere] Input component creation failed.");
-        }
-
         sphere->setName(generateName("sphere"));
-        sphere->setMobility(LIGHTING::LightMobility::NonType); // this object is not a light, so skip it with "NonType"
         sphere->initializeMaterial(m_renderData->getMaterialLib());
         sphere->getTransform()->setPosition(glm::vec3(0.0));
         sphere->getTransform()->setScale(glm::vec3{ 3.5f, 3.5f, 3.5f });
 
-        m_scene->createObjectProperties(sphere);
+        if (!visualLightObj)
+            m_scene->createObjectProperties(sphere);
 
         return sphere;
     }
 
-    std::shared_ptr<SceneObject> SceneObjectFactory::createPointLight(const std::string& materialName,
+    bool SceneObjectFactory::createPointLight(const std::string& materialName,
         const glm::vec3& position, LIGHTING::LightMobility mobility) const
     {
 		// Create visual representation (sphere)
-        auto lightVisualObject = createSphere(materialName);
+        const auto lightVisualObject = createSphere(position, materialName, true);
 
         if (!lightVisualObject) {
-            Logger::error("[SceneObjectFactory::createPointLight] Failed to create light object.");
-            return nullptr;
+            Logger::error("[SceneObjectFactory::createPointLight] Failed to create lightVisualObject.");
+            return false;
 		}
 
         lightVisualObject->setShaderInterface(m_renderData->getShaderInterface(BASIC_SHADER));
         lightVisualObject->setName(generateName("point"));
 
-        auto lightData = std::make_shared<LIGHTING::LightData>(glm::vec3(7.0));
-        lightData->setPosition(position);
+        auto lightData = std::make_shared<LIGHTING::LightData>(position);
 
         auto light = std::make_shared<LIGHTING::Light>(lightData);
         light->setLightType(LIGHTING::LightType::Point);
         light->setVisualObject(lightVisualObject);
         light->setMobility(mobility);
-        lightVisualObject->setMobility(mobility);
+
+        m_scene->createObjectProperties(lightVisualObject);
 
         switch (mobility) {
             case LIGHTING::LightMobility::Static:
@@ -177,48 +189,42 @@ namespace SCENE
                 break;
         }
 
-        // we have to create a new input component for the light object overwriting the existing one
-        const auto inputComponent = Input::InputComponentFactory::createLightComponent(
-            Input::InputType::LightInputComponent,
-            lightVisualObject->getTransform(),
-            light,
-            mobility
-        );
+        // // we have to create a new input component for the light object overwriting the existing one
+        // const auto inputComponent = Input::InputComponentFactory::createLightComponent(
+        //     Input::InputType::LightInputComponent,
+        //     lightVisualObject->getTransform(),
+        //     light,
+        //     mobility
+        // );
+        //
+        // inputComponent ? lightVisualObject->setInputComponent(inputComponent)
+        // : Logger::warn("[SceneObjectFactory::createPointLight] Input component creation failed.");
 
-        if (inputComponent) {
-            lightVisualObject->setInputComponent(inputComponent);
-        }
-        else {
-            Logger::warn("[SceneObjectFactory::createPointLight] Input component creation failed.");
-        }
-
-        return lightVisualObject;
+        return true;
     }
 
-    std::shared_ptr<SceneObject> SceneObjectFactory::createDirectionalLight(const std::string& materialName,
+    bool SceneObjectFactory::createDirectionalLight(const std::string& materialName,
         const glm::vec3& position, LIGHTING::LightMobility mobility) const
     {
         // Create visual representation (sphere)
-        auto lightVisualObject = createSphere(materialName);
+        const auto lightVisualObject = createSphere(position, materialName, true);
 
         if (!lightVisualObject) {
-            Logger::error("[SceneObjectFactory::createDirectionalLight] Failed to create light object.");
-            return nullptr;
+            Logger::error("[SceneObjectFactory::createDirectionalLight] Failed to create lightVisualObject.");
+            return false;
 		}
 
         lightVisualObject->setShaderInterface(m_renderData->getShaderInterface(BASIC_SHADER));
         lightVisualObject->setName(generateName("directional"));
 
-        lightVisualObject->getTransform()->setScale(glm::vec3(0.5f, 1.5f, 0.5f)); // Elongated sphere for spotlight
-
-        auto lightData = std::make_shared<LIGHTING::LightData>(glm::vec3(7.0));
-        lightData->setPosition(position);
+        auto lightData = std::make_shared<LIGHTING::LightData>(position);
 
         auto light = std::make_shared<LIGHTING::Light>(lightData);
         light->setLightType(LIGHTING::LightType::Directional);
         light->setVisualObject(lightVisualObject);
         light->setMobility(mobility);
-        lightVisualObject->setMobility(mobility);
+
+        m_scene->createObjectProperties(lightVisualObject);
 
         switch (mobility) {
             case LIGHTING::LightMobility::Static:
@@ -237,45 +243,42 @@ namespace SCENE
         }
 
         // we have to create a new input component for the light object overwriting the existing one
-        const auto inputComponent = Input::InputComponentFactory::createLightComponent(
-            Input::InputType::LightInputComponent,
-            lightVisualObject->getTransform(),
-            light,
-            mobility
-        );
+        // because already created to a light visual object like a sphere!
+        // const auto inputComponent = Input::InputComponentFactory::createLightComponent(
+        //     Input::InputType::LightInputComponent,
+        //     lightVisualObject->getTransform(),
+        //     light,
+        //     mobility
+        // );
+        //
+        // inputComponent ? lightVisualObject->setInputComponent(inputComponent)
+        // : Logger::warn("[SceneObjectFactory::createPointLight] Input component creation failed.");
 
-        if (inputComponent) {
-            lightVisualObject->setInputComponent(inputComponent);
-        }
-        else {
-            Logger::warn("[SceneObjectFactory::createPointLight] Input component creation failed.");
-        }
-
-        return lightVisualObject;
+        return true;
     }
 
-    std::shared_ptr<SceneObject> SceneObjectFactory::createSpotLight(const std::string& materialName,
+    bool SceneObjectFactory::createSpotLight(const std::string& materialName,
         const glm::vec3& position, LIGHTING::LightMobility mobility) const
     {
 		// Create visual representation (sphere)
-        auto lightVisualObject = createSphere(materialName);
+        const auto lightVisualObject = createSphere(position, materialName, true);
 
         if (!lightVisualObject) {
-            Logger::error("[SceneObjectFactory::createSpotLight] Failed to create light object.");
-            return nullptr;
+            Logger::error("[SceneObjectFactory::createSpotLight] Failed to create lightVisualObject.");
+            return false;
         }
 
         lightVisualObject->setShaderInterface(m_renderData->getShaderInterface(BASIC_SHADER));
         lightVisualObject->setName(generateName("spot"));
 
-        auto lightData = std::make_shared<LIGHTING::LightData>(glm::vec3(7.0));
-        lightData->setPosition(position);
+        auto lightData = std::make_shared<LIGHTING::LightData>(position);
 
         auto light = std::make_shared<LIGHTING::Light>(lightData);
         light->setLightType(LIGHTING::LightType::Spot);
         light->setVisualObject(lightVisualObject);
         light->setMobility(mobility);
-        lightVisualObject->setMobility(mobility);
+
+        m_scene->createObjectProperties(lightVisualObject);
 
         switch (mobility) {
             case LIGHTING::LightMobility::Static:
@@ -294,21 +297,17 @@ namespace SCENE
         }
 
         // we have to create a new input component for the light object overwriting the existing one
-        const auto inputComponent = Input::InputComponentFactory::createLightComponent(
-            Input::InputType::LightInputComponent,
-            lightVisualObject->getTransform(),
-            light,
-            mobility
-        );
+        // const auto inputComponent = Input::InputComponentFactory::createLightComponent(
+        //     Input::InputType::LightInputComponent,
+        //     lightVisualObject->getTransform(),
+        //     light,
+        //     mobility
+        // );
+        //
+        // inputComponent ? lightVisualObject->setInputComponent(inputComponent)
+        // : Logger::warn("[SceneObjectFactory::createPointLight] Input component creation failed.");
 
-        if (inputComponent) {
-            lightVisualObject->setInputComponent(inputComponent);
-        }
-        else {
-            Logger::warn("[SceneObjectFactory::createPointLight] Input component creation failed.");
-        }
-
-		return lightVisualObject;
+		return true;
     }
 
     std::string SceneObjectFactory::generateName(const std::string &type)

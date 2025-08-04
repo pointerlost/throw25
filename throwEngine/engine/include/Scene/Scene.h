@@ -72,8 +72,6 @@ namespace SCENE
 
 		Input::InputContext inputContext;
 
-		std::shared_ptr<GLgraphics::RenderData> m_renderData;
-
 		std::unique_ptr<GRID::GridSystem> m_gridSystem;
 
 		std::vector<std::shared_ptr<Input::IInputComponent>> m_inputComponents;

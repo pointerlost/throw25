@@ -39,20 +39,20 @@ namespace SCENE
 
 		[[nodiscard]] std::shared_ptr<GLgraphics::MeshData3D> getMeshData() const;
 
-		[[nodiscard]] std::shared_ptr<SceneObject> createCube(const std::string& materialName = "leather") const;
+		[[nodiscard]] std::shared_ptr<SceneObject> createCube(const glm::vec3& pos = glm::vec3(0.0), const std::string& materialName = "leather", bool visualLightObj = false) const;
 
-		[[nodiscard]] std::shared_ptr<SceneObject> createSphere(const std::string& materialName = "marble") const;
+		[[nodiscard]] std::shared_ptr<SceneObject> createSphere(const glm::vec3& pos = glm::vec3(0.0), const std::string& materialName = "marble", bool visualLightObj = false) const;
 
-		[[nodiscard]] std::shared_ptr<SCENE::SceneObject> createPointLight(const std::string& materialName = "gold",
-			const glm::vec3& position = glm::vec3(5.0),
+		[[nodiscard]] bool createPointLight(const std::string& materialName = "gold",
+			const glm::vec3& position = glm::vec3(7.0),
 			LIGHTING::LightMobility mobility = LIGHTING::LightMobility::Static) const;
 
-		[[nodiscard]] std::shared_ptr<SCENE::SceneObject> createDirectionalLight(const std::string& materialName = "gold",
-			const glm::vec3& position = glm::vec3(5.0),
+		[[nodiscard]] bool createDirectionalLight(const std::string& materialName = "gold",
+			const glm::vec3& position = glm::vec3(7.0),
 			LIGHTING::LightMobility mobility = LIGHTING::LightMobility::Static) const;
 
-		[[nodiscard]] std::shared_ptr<SCENE::SceneObject> createSpotLight(const std::string& materialName = "gold",
-			const glm::vec3& position = glm::vec3(5.0),
+		[[nodiscard]] bool createSpotLight(const std::string& materialName = "gold",
+			const glm::vec3& position = glm::vec3(7.0),
 			LIGHTING::LightMobility mobility = LIGHTING::LightMobility::Static) const;
 
 		static inline Input::InputContext createInputContext() {
