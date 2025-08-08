@@ -1,3 +1,3 @@
 throwEngine
 
-I'm developing a simple engine with a user interface by integrating an ECS system into the structure of my current engine.
+A project where i combine the ECS system with the structure i built myself to develop an engine with a simple user interface.
