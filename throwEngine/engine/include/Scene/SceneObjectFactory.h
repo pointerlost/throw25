@@ -13,7 +13,7 @@ namespace SHADER
 	class IShader;
 }
 
-namespace GLgraphics
+namespace Graphics
 {
 	class MeshData3D;
 }
@@ -24,7 +24,7 @@ namespace LIGHTING
 	class LightManager;
 }
 
-namespace MATERIAL { class MaterialLibrary; };
+namespace Graphics { class MaterialLibrary; };
 
 namespace SCENE
 {
@@ -34,26 +34,23 @@ namespace SCENE
 	class SceneObjectFactory
 	{
 	public:
-		explicit SceneObjectFactory(const std::shared_ptr<GLgraphics::RenderData>& renderData);
+		explicit SceneObjectFactory(const std::shared_ptr<Graphics::RenderData>& renderData);
 		~SceneObjectFactory();
 
-		[[nodiscard]] std::shared_ptr<GLgraphics::MeshData3D> getMeshData() const;
+		[[nodiscard]] std::shared_ptr<Graphics::MeshData3D> getMeshData() const;
 
 		[[nodiscard]] std::shared_ptr<SceneObject> createCube(const glm::vec3& pos = glm::vec3(0.0), const std::string& materialName = "leather", bool visualLightObj = false) const;
 
-		[[nodiscard]] std::shared_ptr<SceneObject> createSphere(const glm::vec3& pos = glm::vec3(0.0), const std::string& materialName = "marble", bool visualLightObj = false) const;
+		[[nodiscard]] std::shared_ptr<SceneObject> createSphere(const glm::vec3& pos = glm::vec3(0.0), const std::string& materialName = "gold", bool visualLightObj = false) const;
 
 		[[nodiscard]] bool createPointLight(const std::string& materialName = "gold",
-			const glm::vec3& position = glm::vec3(7.0),
-			LIGHTING::LightMobility mobility = LIGHTING::LightMobility::Static) const;
+			const glm::vec3& position = glm::vec3(7.0)) const;
 
 		[[nodiscard]] bool createDirectionalLight(const std::string& materialName = "gold",
-			const glm::vec3& position = glm::vec3(7.0),
-			LIGHTING::LightMobility mobility = LIGHTING::LightMobility::Static) const;
+			const glm::vec3& position = glm::vec3(7.0)) const;
 
 		[[nodiscard]] bool createSpotLight(const std::string& materialName = "gold",
-			const glm::vec3& position = glm::vec3(7.0),
-			LIGHTING::LightMobility mobility = LIGHTING::LightMobility::Static) const;
+			const glm::vec3& position = glm::vec3(7.0)) const;
 
 		static inline Input::InputContext createInputContext() {
 			Input::InputContext inputContext{};
@@ -73,7 +70,7 @@ namespace SCENE
 		struct Impl;
 		std::unique_ptr<Impl> m_pImpl;
 
-		std::shared_ptr<GLgraphics::RenderData> m_renderData;
+		std::shared_ptr<Graphics::RenderData> m_renderData;
 
 		std::shared_ptr<SCENE::Scene> m_scene;
 		

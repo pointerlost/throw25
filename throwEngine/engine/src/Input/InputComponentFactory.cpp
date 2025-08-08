@@ -4,13 +4,13 @@
 
 #include <core/Logger.h>
 
-#include <graphics/GLTransformations/Transformations.h>
+#include <graphics/Transformations/Transformations.h>
 
 #include <graphics/Lighting/Light.h>
 
 namespace Input
 {
-	std::shared_ptr<IInputComponent> InputComponentFactory::createObjectComponent(InputType type, std::shared_ptr<GLgraphics::Transformations> transform)
+	std::shared_ptr<IInputComponent> InputComponentFactory::createObjectComponent(InputType type, std::shared_ptr<Graphics::Transform> transform)
 	{
 		Input::InputContext context{};
 
@@ -28,12 +28,11 @@ namespace Input
 
 	std::shared_ptr<IInputComponent> InputComponentFactory::createLightComponent(
 		InputType type,
-		std::shared_ptr<GLgraphics::Transformations> transform,
-		std::shared_ptr<LIGHTING::Light>& light,
-		LIGHTING::LightMobility mobility)
+		std::shared_ptr<Graphics::Transform> transform,
+		std::shared_ptr<LIGHTING::Light>& light)
 	{
 		Input::InputContext context{};
 	
-		return mobility == LIGHTING::LightMobility::Static ? nullptr : std::make_shared<LightInputComponent>(transform, context, light);
+		return std::make_shared<LightInputComponent>(transform, context, light);
 	}
 } // namespace Input

@@ -7,7 +7,7 @@
 
 
 // forward declarations
-namespace GLgraphics
+namespace Graphics
 {
 	class RenderData;
 }
@@ -25,7 +25,7 @@ namespace ENGINE::UI
 	class ImGuiLayer
 	{
 	public:
-		ImGuiLayer(std::shared_ptr<GLgraphics::RenderData> renderData, GLFWwindow* window);
+		ImGuiLayer(std::shared_ptr<Graphics::RenderData> renderData, GLFWwindow* window);
 
 		void Init(GLFWwindow* window);
 		void BeginFrame();
@@ -48,7 +48,7 @@ namespace ENGINE::UI
 
 		void showSelectedObjectProperties(std::shared_ptr<SCENE::SceneObject>& object);
 
-		void setSceneObjectMaterial(std::shared_ptr<SCENE::SceneObject>& sceneObject);
+		void setSceneObjectMaterial(const std::shared_ptr<SCENE::SceneObject>& sceneObject);
 		void setSceneObjectTransform(const std::shared_ptr<SCENE::SceneObject>& sceneObject);
 
 		void generalMenuForPanel();
@@ -59,7 +59,7 @@ namespace ENGINE::UI
 	private:
 		GLFWwindow* m_Window = nullptr;
 
-		std::shared_ptr<GLgraphics::RenderData> m_renderData;
+		std::shared_ptr<Graphics::RenderData> m_renderData;
 
 		bool showDemoWindow = true;
 		bool showAnotherWindow = false;

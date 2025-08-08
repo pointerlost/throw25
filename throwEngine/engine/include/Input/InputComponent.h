@@ -4,7 +4,7 @@
 #include "Input/InputContext.h"
 #include <vector>
 
-namespace GLgraphics { class Transformations; };
+namespace Graphics { class Transform; };
 namespace SCENE		 { class Scene;			  };
 namespace LIGHTING   { class Light;			  };
 
@@ -41,7 +41,7 @@ namespace Input
 	class SphereInputComponent : public IInputComponent
 	{
 	public:
-		SphereInputComponent(std::shared_ptr<GLgraphics::Transformations> transform, Input::InputContext context);
+		SphereInputComponent(std::shared_ptr<Graphics::Transform> transform, Input::InputContext context);
 		~SphereInputComponent() = default;
 
 		void processInput(SCENE::Scene& scene) override;
@@ -53,7 +53,7 @@ namespace Input
 		InputType getInputType() const override { return m_inputType; }
 
 	private:
-		std::shared_ptr<GLgraphics::Transformations> m_transformation;
+		std::shared_ptr<Graphics::Transform> m_transformation;
 		Input::InputContext m_dataContext;
 
 		int m_activeLightComponentIdx = 0;
@@ -68,7 +68,7 @@ namespace Input
 	class CubeInputComponent : public IInputComponent
 	{
 	public:
-		CubeInputComponent(std::shared_ptr<GLgraphics::Transformations> transform, Input::InputContext context);
+		CubeInputComponent(std::shared_ptr<Graphics::Transform> transform, Input::InputContext context);
 		~CubeInputComponent() = default;
 
 		void processInput(SCENE::Scene& scene) override;
@@ -80,7 +80,7 @@ namespace Input
 		InputType getInputType() const override { return m_inputType; }
 
 	private:
-		std::shared_ptr<GLgraphics::Transformations> m_transformation;
+		std::shared_ptr<Graphics::Transform> m_transformation;
 
 		InputType m_inputType = InputType::CubeInputComponent;
 
@@ -91,7 +91,7 @@ namespace Input
 	class CircleInputComponent : public IInputComponent
 	{
 	public:
-		CircleInputComponent(std::shared_ptr<GLgraphics::Transformations> transform, Input::InputContext context);
+		CircleInputComponent(std::shared_ptr<Graphics::Transform> transform, Input::InputContext context);
 
 		void processInput(SCENE::Scene& scene) override {};
 
@@ -102,7 +102,7 @@ namespace Input
 		InputType getInputType() const override { return m_inputType; }
 
 	private:
-		std::shared_ptr<GLgraphics::Transformations> m_transformation;
+		std::shared_ptr<Graphics::Transform> m_transformation;
 
 		InputType m_inputType = InputType::CircleInputComponent;
 
@@ -113,7 +113,7 @@ namespace Input
 	class LightInputComponent : public IInputComponent
 	{
 	public:
-		LightInputComponent(std::shared_ptr<GLgraphics::Transformations> transform, Input::InputContext context, std::shared_ptr<LIGHTING::Light>& myLight);
+		LightInputComponent(std::shared_ptr<Graphics::Transform> transform, Input::InputContext context, std::shared_ptr<LIGHTING::Light>& myLight);
 
 		void processInput(SCENE::Scene& scene) override;
 
@@ -128,7 +128,7 @@ namespace Input
 		void moveOnPress(std::shared_ptr<LIGHTING::Light>& light);
 
 	private:
-		std::shared_ptr<GLgraphics::Transformations> m_transformation;
+		std::shared_ptr<Graphics::Transform> m_transformation;
 		Input::InputContext m_dataContext;
 
 		InputType m_inputType = InputType::LightInputComponent;

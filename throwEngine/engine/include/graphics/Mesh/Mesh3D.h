@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
-#include "graphics/Mesh/GLMeshInterface.h"
+#include "graphics/Mesh/MeshInterface.h"
 
-namespace GLgraphics
+namespace Graphics
 {
 	// Forward Declarations
 	class Shader;
@@ -23,7 +23,7 @@ namespace GLgraphics
 
 		void drawMeshObject() const override;
 
-		[[nodiscard]] uint32_t getVAO() const override { return 0; };
+		[[nodiscard]] uint32_t getVAO() const override {};
 
 	protected:
 

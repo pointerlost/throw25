@@ -14,7 +14,7 @@
 
 namespace GRID
 {
-	GridRenderer::GridRenderer(std::shared_ptr<GridData> gridData, std::shared_ptr<CAMERA::Camera> camera) :
+	GridRenderer::GridRenderer(std::shared_ptr<GridData> gridData, std::shared_ptr<Graphics::Camera> camera) :
 		m_gridData(gridData), m_camera(camera)
 	{
 		DEBUG_PTR(m_gridData);

@@ -1,16 +1,13 @@
 #pragma once
 #include <vector>
+#include <unordered_map>
 #include <memory>
 #include <stack>
-
-#include "graphics/Lighting/Light.h"
-
-static constexpr int MAX_DYNAMIC_LIGHTS = 8;
-static constexpr int MAX_STATIONARY_LIGHTS = 24;
 
 namespace LIGHTING
 {
 	class LightData;
+	class Light;
 }
 
 namespace SHADER
@@ -27,46 +24,28 @@ namespace LIGHTING
 		LightManager() = default;
 
 		void setLightUniforms(const std::shared_ptr<SHADER::GLShaderProgram>& shader,
-			const std::string &prefix, const std::shared_ptr<Light>& light) const;
+			size_t index, const std::shared_ptr<Light>& light);
 
-		void uploadLights(const std::shared_ptr<SHADER::GLShaderProgram>& shader) const;
+		void uploadLights(const std::shared_ptr<SHADER::GLShaderProgram>& shader);
 
-		[[nodiscard]] uint32_t getActiveLightCount() const { return m_totalLightCount; };
+		[[nodiscard]] uint32_t getActiveLightCount() const { return m_lightMap.size(); };
 
-		void addStaticLight(const std::shared_ptr<Light>& light);
-		[[nodiscard]] const std::vector<std::shared_ptr<Light>>& getStaticLights() const { return m_staticLightsVec; };
-		[[nodiscard]] uint32_t getStaticLightCount() const { return m_staticLightsVec.size(); };
+		std::vector<std::shared_ptr<Light>> getLights() const { return m_lights; }
 
-		void addStationaryLight(const std::shared_ptr<Light>& light);
-		void setStationaryLightsDirty(bool dirty) { m_stationaryLightsDirty = dirty; };
-		[[nodiscard]] bool areStationaryLightsDirty() const { return m_stationaryLightsDirty; };
-		[[nodiscard]] const std::array<std::shared_ptr<Light>, MAX_STATIONARY_LIGHTS>& getStationaryLights() const { return m_stationaryLights; };
-		[[nodiscard]] uint32_t getStationaryLightCount() const { return m_lastIdxStationary - m_freeStationaryIndices.size(); };
+		bool checkLightExists(const std::string& name) const;
 
-		void addDynamicLight(const std::shared_ptr<Light>& light);
-		void setDynamicLightsDirty(bool dirty) { m_dynamicLightsDirty = dirty; };
-		[[nodiscard]] bool areDynamicLightsDirty() const { return m_dynamicLightsDirty; };
-		[[nodiscard]] const std::array<std::shared_ptr<Light>, MAX_DYNAMIC_LIGHTS>& getDynamicLights() const { return m_dynamicLights; };
-		[[nodiscard]] uint32_t getDynamicLightCount() const { return m_lastIdxDynamic - m_freeDynamicIndices.size(); };
-
-		void calculateLightCount();
-		void cleanupExpiredLights();
+		void addLight(const std::shared_ptr<Light>& light);
+		void removeLight(const std::string& name);
+		[[nodiscard]] std::shared_ptr<Light> getLight(const std::string& name) const;
 
 	private:
-		uint m_totalLightCount = 0;
+		std::vector<std::shared_ptr<Light>> m_lights;
 
-		std::vector<std::shared_ptr<Light>> m_staticLightsVec;
-		bool m_staticLightsDirty = false;
-		std::unordered_map<std::string, std::shared_ptr<Light>> m_staticLightsMap;
+		std::stack<size_t> m_NullIndexStackOfLights;
 
-		size_t m_lastIdxStationary = 0;
-		std::array<std::shared_ptr<Light>, MAX_STATIONARY_LIGHTS> m_stationaryLights;
-		std::stack<uint16_t> m_freeStationaryIndices;
-		bool m_stationaryLightsDirty = false;
+		std::unordered_map<std::string, uint32_t> getFreeIndexWithName;
 
-		size_t m_lastIdxDynamic = 0;
-		std::array<std::shared_ptr<Light>, MAX_DYNAMIC_LIGHTS> m_dynamicLights;
-		std::stack<uint16_t> m_freeDynamicIndices;
-		bool m_dynamicLightsDirty = false;
+		// get light with the name of scene object
+		std::unordered_map<std::string, std::shared_ptr<Light>> m_lightMap;
 	};
 }

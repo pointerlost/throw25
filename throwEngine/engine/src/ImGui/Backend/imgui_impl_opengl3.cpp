@@ -91,7 +91,7 @@
 //  2018-01-07: OpenGL: Changed GLSL shader version from 330 to 150.
 //  2017-09-01: OpenGL: Save and restore current bound sampler. Save and restore current polygon mode.
 //  2017-05-01: OpenGL: Fixed save and restore of current blend func state.
-//  2017-05-01: OpenGL: Fixed save and restore of current GL_ACTIVE_TEXTURE.
+//  2017-05-01: OpenGL: Fixed save and restore of current GL_ACTIVE_Graphics.
 //  2016-09-05: OpenGL: Fixed save and restore of current scissor rectangle.
 //  2016-07-29: OpenGL: Explicitly setting GL_UNPACK_ROW_LENGTH to reduce issues because SDL changes it. (#752)
 
@@ -329,7 +329,7 @@ bool    ImGui_ImplOpenGL3_Init(const char* glsl_version)
     if (major == 0 && minor == 0)
         sscanf(gl_version_str, "%d.%d", &major, &minor); // Query GL_VERSION in desktop GL 2.x, the string will start with "<major>.<minor>"
     bd->GlVersion = (GLuint)(major * 100 + minor * 10);
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &bd->MaxTextureSize);
+    glGetIntegerv(GL_MAX_Graphics_SIZE, &bd->MaxTextureSize);
 
 #if defined(IMGUI_IMPL_OPENGL_ES3)
     bd->GlProfileIsES3 = true;
@@ -389,7 +389,7 @@ bool    ImGui_ImplOpenGL3_Init(const char* glsl_version)
     // Make an arbitrary GL call (we don't actually need the result)
     // IF YOU GET A CRASH HERE: it probably means the OpenGL function loader didn't do its job. Let us know!
     GLint current_texture;
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &current_texture);
+    glGetIntegerv(GL_Graphics_BINDING_2D, &current_texture);
 
     // Detect extensions we support
 #ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_POLYGON_MODE
@@ -532,10 +532,10 @@ void    ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
                 ImGui_ImplOpenGL3_UpdateTexture(tex);
 
     // Backup GL state
-    GLenum last_active_texture; glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint*)&last_active_texture);
-    glActiveTexture(GL_TEXTURE0);
+    GLenum last_active_texture; glGetIntegerv(GL_ACTIVE_Graphics, (GLint*)&last_active_texture);
+    glActiveTexture(GL_Graphics0);
     GLuint last_program; glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*)&last_program);
-    GLuint last_texture; glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&last_texture);
+    GLuint last_texture; glGetIntegerv(GL_Graphics_BINDING_2D, (GLint*)&last_texture);
 #ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_BIND_SAMPLER
     GLuint last_sampler; if (bd->GlVersion >= 330 || bd->GlProfileIsES3) { glGetIntegerv(GL_SAMPLER_BINDING, (GLint*)&last_sampler); } else { last_sampler = 0; }
 #endif
@@ -643,7 +643,7 @@ void    ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
                 GL_CALL(glScissor((int)clip_min.x, (int)((float)fb_height - clip_max.y), (int)(clip_max.x - clip_min.x), (int)(clip_max.y - clip_min.y)));
 
                 // Bind texture, Draw
-                GL_CALL(glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->GetTexID()));
+                GL_CALL(glBindTexture(GL_Graphics_2D, (GLuint)(intptr_t)pcmd->GetTexID()));
 #ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_VTX_OFFSET
                 if (bd->GlVersion >= 320)
                     GL_CALL(glDrawElementsBaseVertex(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT, (void*)(intptr_t)(pcmd->IdxOffset * sizeof(ImDrawIdx)), (GLint)pcmd->VtxOffset));
@@ -662,7 +662,7 @@ void    ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
     // Restore modified GL state
     // This "glIsProgram()" check is required because if the program is "pending deletion" at the time of binding backup, it will have been deleted by now and will cause an OpenGL error. See #6220.
     if (last_program == 0 || glIsProgram(last_program)) glUseProgram(last_program);
-    glBindTexture(GL_TEXTURE_2D, last_texture);
+    glBindTexture(GL_Graphics_2D, last_texture);
 #ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_BIND_SAMPLER
     if (bd->GlVersion >= 330 || bd->GlProfileIsES3)
         glBindSampler(0, last_sampler);
@@ -723,38 +723,38 @@ void ImGui_ImplOpenGL3_UpdateTexture(ImTextureData* tex)
         // Upload texture to graphics system
         // (Bilinear sampling is required by default. Set 'io.Fonts->Flags |= ImFontAtlasFlags_NoBakedLines' or 'style.AntiAliasedLinesUseTex = false' to allow point/nearest sampling)
         GLint last_texture;
-        GL_CALL(glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture));
+        GL_CALL(glGetIntegerv(GL_Graphics_BINDING_2D, &last_texture));
         GL_CALL(glGenTextures(1, &gl_texture_id));
-        GL_CALL(glBindTexture(GL_TEXTURE_2D, gl_texture_id));
-        GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-        GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-        GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-        GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+        GL_CALL(glBindTexture(GL_Graphics_2D, gl_texture_id));
+        GL_CALL(glTexParameteri(GL_Graphics_2D, GL_Graphics_MIN_FILTER, GL_LINEAR));
+        GL_CALL(glTexParameteri(GL_Graphics_2D, GL_Graphics_MAG_FILTER, GL_LINEAR));
+        GL_CALL(glTexParameteri(GL_Graphics_2D, GL_Graphics_WRAP_S, GL_CLAMP_TO_EDGE));
+        GL_CALL(glTexParameteri(GL_Graphics_2D, GL_Graphics_WRAP_T, GL_CLAMP_TO_EDGE));
 #ifdef GL_UNPACK_ROW_LENGTH // Not on WebGL/ES
         GL_CALL(glPixelStorei(GL_UNPACK_ROW_LENGTH, 0));
 #endif
-        GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->Width, tex->Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels));
+        GL_CALL(glTexImage2D(GL_Graphics_2D, 0, GL_RGBA, tex->Width, tex->Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels));
 
         // Store identifiers
         tex->SetTexID((ImTextureID)(intptr_t)gl_texture_id);
         tex->SetStatus(ImTextureStatus_OK);
 
         // Restore state
-        GL_CALL(glBindTexture(GL_TEXTURE_2D, last_texture));
+        GL_CALL(glBindTexture(GL_Graphics_2D, last_texture));
     }
     else if (tex->Status == ImTextureStatus_WantUpdates)
     {
         // Update selected blocks. We only ever write to textures regions which have never been used before!
         // This backend choose to use tex->Updates[] but you can use tex->UpdateRect to upload a single region.
         GLint last_texture;
-        GL_CALL(glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture));
+        GL_CALL(glGetIntegerv(GL_Graphics_BINDING_2D, &last_texture));
 
         GLuint gl_tex_id = (GLuint)(intptr_t)tex->TexID;
-        GL_CALL(glBindTexture(GL_TEXTURE_2D, gl_tex_id));
+        GL_CALL(glBindTexture(GL_Graphics_2D, gl_tex_id));
 #if 0// GL_UNPACK_ROW_LENGTH // Not on WebGL/ES
         GL_CALL(glPixelStorei(GL_UNPACK_ROW_LENGTH, tex->Width));
         for (ImTextureRect& r : tex->Updates)
-            GL_CALL(glTexSubImage2D(GL_TEXTURE_2D, 0, r.x, r.y, r.w, r.h, GL_RGBA, GL_UNSIGNED_BYTE, tex->GetPixelsAt(r.x, r.y)));
+            GL_CALL(glTexSubImage2D(GL_Graphics_2D, 0, r.x, r.y, r.w, r.h, GL_RGBA, GL_UNSIGNED_BYTE, tex->GetPixelsAt(r.x, r.y)));
         GL_CALL(glPixelStorei(GL_UNPACK_ROW_LENGTH, 0));
 #else
         // GL ES doesn't have GL_UNPACK_ROW_LENGTH, so we need to (A) copy to a contiguous buffer or (B) upload line by line.
@@ -767,11 +767,11 @@ void ImGui_ImplOpenGL3_UpdateTexture(ImTextureData* tex)
             for (int y = 0; y < r.h; y++, out_p += src_pitch)
                 memcpy(out_p, tex->GetPixelsAt(r.x, r.y + y), src_pitch);
             IM_ASSERT(out_p == bd->TempBuffer.end());
-            GL_CALL(glTexSubImage2D(GL_TEXTURE_2D, 0, r.x, r.y, r.w, r.h, GL_RGBA, GL_UNSIGNED_BYTE, bd->TempBuffer.Data));
+            GL_CALL(glTexSubImage2D(GL_Graphics_2D, 0, r.x, r.y, r.w, r.h, GL_RGBA, GL_UNSIGNED_BYTE, bd->TempBuffer.Data));
         }
 #endif
         tex->SetStatus(ImTextureStatus_OK);
-        GL_CALL(glBindTexture(GL_TEXTURE_2D, last_texture)); // Restore state
+        GL_CALL(glBindTexture(GL_Graphics_2D, last_texture)); // Restore state
     }
     else if (tex->Status == ImTextureStatus_WantDestroy && tex->UnusedFrames > 0)
         ImGui_ImplOpenGL3_DestroyTexture(tex);
@@ -821,7 +821,7 @@ bool    ImGui_ImplOpenGL3_CreateDeviceObjects()
 
     // Backup GL state
     GLint last_texture, last_array_buffer;
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+    glGetIntegerv(GL_Graphics_BINDING_2D, &last_texture);
     glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
 #ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_BIND_BUFFER_PIXEL_UNPACK
     GLint last_pixel_unpack_buffer = 0;
@@ -1001,7 +1001,7 @@ bool    ImGui_ImplOpenGL3_CreateDeviceObjects()
     glGenBuffers(1, &bd->ElementsHandle);
 
     // Restore modified GL state
-    glBindTexture(GL_TEXTURE_2D, last_texture);
+    glBindTexture(GL_Graphics_2D, last_texture);
     glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
 #ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_BIND_BUFFER_PIXEL_UNPACK
     if (bd->GlVersion >= 210) { glBindBuffer(GL_PIXEL_UNPACK_BUFFER, last_pixel_unpack_buffer); }

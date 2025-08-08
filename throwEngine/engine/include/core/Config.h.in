@@ -5,7 +5,7 @@
 
 // Assets folder
 #define ASSETS_DIR "@ASSETS_DIR@"
-#define MATERIALS_JSON_PATH "@ASSETS_DIR@/materialJSON/materials.json"
+#define GraphicsS_JSON_PATH "@ASSETS_DIR@/materialJSON/materials.json"
 
 // Shader config path
 #define SHADERS_CONFIG_PATH "@SHADERS_CONFIG_PATH@"

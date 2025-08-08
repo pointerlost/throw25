@@ -15,12 +15,12 @@
 #include "core/Logger.h"
 #define DEBUG_PTR(ptr) DEBUG::DebugForEngineObjectPointers(ptr)
 
-namespace GLgraphics
+namespace Graphics
 {
-	RenderData::RenderData(std::shared_ptr<SHADER::ShaderManager> shaderManager, const std::shared_ptr<CAMERA::Camera>& camera,
-		const std::shared_ptr<TEXTURE::TextureManager>& textureManager, const std::shared_ptr<MATERIAL::MaterialLibrary>& materialLib)
+	RenderData::RenderData(std::shared_ptr<SHADER::ShaderManager> shaderManager, const std::shared_ptr<Graphics::Camera>& camera,
+		const std::shared_ptr<Graphics::TextureManager>& textureManager, const std::shared_ptr<Graphics::MaterialLibrary>& materialLib)
 		: m_shaderManager(shaderManager), m_textureManager(textureManager),
-		m_material(materialLib), m_camera(camera), g_ambientLight(glm::vec3(0.1, 0.1, 0.1))
+		m_material(materialLib), m_camera(camera)
 	{
 		view = glm::mat4(1.0f);
 		projection = glm::mat4(1.0f);
@@ -31,7 +31,7 @@ namespace GLgraphics
 		DEBUG_PTR(m_material);
 	}
 	
-	// VIEW (CAMERA) STUFF
+	// VIEW (Graphics) STUFF
 	void RenderData::setViewMatrix(const glm::mat4 view)
 	{
 		this->view = view;
@@ -53,7 +53,7 @@ namespace GLgraphics
 		return m_shaderManager->getWrapperGLShader();
 	}
 
-	std::shared_ptr<MATERIAL::MaterialLibrary> RenderData::getMaterialLib() {
+	std::shared_ptr<Graphics::MaterialLibrary> RenderData::getMaterialLib() {
 		if (!m_material) {
 			Logger::warn("[RenderData::getMaterialLib] m_material is nullptr!\n");
 			return {};

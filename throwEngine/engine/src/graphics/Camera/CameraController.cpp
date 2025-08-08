@@ -7,7 +7,7 @@
 #include "core/Debug.h"
 #define DEBUG_PTR(ptr) DEBUG::DebugForEngineObjectPointers(ptr)
 
-namespace CAMERA
+namespace Graphics
 {
 	CameraInputSystem::CameraInputSystem(Camera* cam, Input::InputContext context)
 		: camera(cam), dataContext(context)
@@ -104,7 +104,7 @@ namespace CAMERA
 			Input::resetMouseDelta();
 		}
 
-		/* ************************************ DIRTY CAMERA FLAG ********************************************* */
+		/* ************************************ DIRTY Graphics FLAG ********************************************* */
 
 		if ( camera->getIsCameraDirty() )
 		{
@@ -115,8 +115,8 @@ namespace CAMERA
 
 	void CameraInputSystem::setUpDataContext()
 	{
-		dataContext.m_rotationSpeed = 0.015f;
-		dataContext.m_delta = -90.0f;
+		dataContext.m_rotationSpeed = 0.1f;
+		dataContext.m_delta = -45.0f;
 
 		dataContext.m_isJumping = false;
 		dataContext.m_jumpDuration = 1.0f;

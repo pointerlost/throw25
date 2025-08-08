@@ -6,7 +6,7 @@
 
 namespace SCENE { class Scene;	  };
 
-namespace GLgraphics
+namespace Graphics
 {
 	// Forward declarations
 	class RenderData;

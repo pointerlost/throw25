@@ -13,11 +13,14 @@ namespace LIGHTING
 	public:
 		explicit LightData(const glm::vec3& lightPos);
 
-		void calculateDirection(const std::shared_ptr<Light>& light);
-		void setPosition(const glm::vec3& pos);
+		void updateAll(const std::shared_ptr<Light>& light);
 
-		[[nodiscard]] const glm::vec3& getDirection() const { return m_direction;   };
+		void setPosition(const glm::vec3& pos);
 		[[nodiscard]] const glm::vec3& getPosition()  const { return m_pos;		    };
+
+		// scene-center-based
+		void setDirection(const glm::vec3& pos) { m_direction = glm::normalize(glm::vec3(0.0) - pos); };
+		[[nodiscard]] const glm::vec3& getDirection() const { return m_direction;   };
 
 		void setCutOff(const float cutOff)           { if (m_cutOff != cutOff) { m_cutOff = cutOff; } };
 		[[nodiscard]] float getCutOff()	   const     { return m_cutOff;             };
@@ -40,6 +43,9 @@ namespace LIGHTING
 		void setSpecular(const glm::vec3& specular)  { if (m_specular != specular) { m_specular = specular; } };
 		[[nodiscard]] glm::vec3& getSpecular()       { return m_specular;           };
 
+		void setEulerAngles(const glm::vec3& angles) { if (m_eulerAngles != angles) { m_eulerAngles = angles; } };
+		[[nodiscard]] glm::vec3& getEulerAngles()    { return m_eulerAngles;  };
+
 	private:
 		// position and direction
 		glm::vec3 m_pos;
@@ -49,8 +55,12 @@ namespace LIGHTING
 		glm::vec3 m_SceneCenter;
 
 		// for scene lighting not light object material properties
-		glm::vec3 m_diffuse  = glm::vec3(0.3);
-		glm::vec3 m_specular = glm::vec3(0.8);
+		glm::vec3 m_diffuse  = glm::vec3(1.0);
+		glm::vec3 m_specular = glm::vec3(1.0);
+
+		// for directional and spotlight
+		glm::vec3 m_eulerAngles{0.0};
+		glm::vec3 m_cachedForwardDirection{};
 
 		// spotlight soft edge
 		float m_cutOff		= static_cast<float>(glm::cos(glm::radians(12.5)));

@@ -6,7 +6,7 @@
 #include <functional>
 
 
-namespace GLgraphics
+namespace Graphics
 {
 	struct Vertex;
 

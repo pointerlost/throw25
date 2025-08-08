@@ -10,7 +10,7 @@
 
 namespace GRID
 {
-	bool GridSystem::initialize(std::shared_ptr<CAMERA::Camera> camera)
+	bool GridSystem::initialize(std::shared_ptr<Graphics::Camera> camera)
 	{
 		m_gridData = std::make_shared<GridData>();
 		if (!m_gridData) {

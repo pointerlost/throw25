@@ -8,7 +8,7 @@
 
 #include "graphics/Shaders/ShaderManager.h"
 
-#include "graphics/GLTransformations/Transformations.h"
+#include "graphics/Transformations/Transformations.h"
 
 #include "graphics/Renderer/RenderData.h"
 
@@ -80,7 +80,7 @@ namespace core {
 	bool Engine::initResources()
 	{
 		// Load materials
-		if (!m_MaterialLibraryPtr->createMaterials(MATERIALS_JSON_PATH, *textureManager)) {
+		if (!m_MaterialLibraryPtr->createMaterials(GraphicsS_JSON_PATH, *textureManager)) {
 			Logger::error("[Engine::initResources] loadMaterialFromJSON function is not working correctly!");
 			return false;
 		}
@@ -91,15 +91,9 @@ namespace core {
 			return false;
 		}
 
-		// load scene object and others.
-		if (!scene->SetUpResources(m_MaterialLibraryPtr)) {
-			Logger::error("[Engine::initResources] scene->SetUpResources FAILED!");
-			return false;
-		}
-
 		m_imGuiLayer->Init(m_window->getGLFWwindow());
 
-		// i can back later!!
+		// I can back later!!
 		// scene->initGrid(renderData);
 
 		Logger::info("Engine initResources successful!");
@@ -164,7 +158,7 @@ namespace core {
 
 	void Engine::initTexture()
 	{
-		textureManager = std::make_shared<TEXTURE::TextureManager>();
+		textureManager = std::make_shared<Graphics::TextureManager>();
 
 		DEBUG_PTR(textureManager);
 
@@ -176,7 +170,7 @@ namespace core {
 
 	void Engine::initMaterial()
 	{
-		using namespace MATERIAL;
+		using namespace Graphics;
 
 		m_MaterialLibraryPtr = std::make_shared<MaterialLibrary>();
 
@@ -190,7 +184,7 @@ namespace core {
 
 	void Engine::initCamera()
 	{
-		cameraManager = std::make_shared<CAMERA::Camera>();
+		cameraManager = std::make_shared<Graphics::Camera>();
 
 		DEBUG_PTR(cameraManager);
 
@@ -199,7 +193,7 @@ namespace core {
 			throw std::runtime_error("Failed to initialize camera!");
 		}
 
-		cameraInput = std::make_unique<CAMERA::CameraInputSystem>(cameraManager.get(), dataInputContext);
+		cameraInput = std::make_unique<Graphics::CameraInputSystem>(cameraManager.get(), dataInputContext);
 
 		DEBUG_PTR(cameraInput);
 
@@ -211,7 +205,7 @@ namespace core {
 
 	void Engine::initTransform()
 	{
-		transformationManager = std::make_shared<GLgraphics::Transformations>();
+		transformationManager = std::make_shared<Graphics::Transformations>();
 
 		DEBUG_PTR(transformationManager);
 
@@ -230,14 +224,14 @@ namespace core {
 
 	void Engine::initRender()
 	{
-		renderData = std::make_shared<GLgraphics::RenderData>(shaderManager, cameraManager, textureManager, m_MaterialLibraryPtr);
+		renderData = std::make_shared<Graphics::RenderData>(shaderManager, cameraManager, textureManager, m_MaterialLibraryPtr);
 
 		if (!renderData) {
 			Logger::warn("[Engine::initRender] renderData is nullptr!");
 			throw std::runtime_error("Failed to initialize renderData!");
 		}
 
-		rendererManager = std::make_unique<GLgraphics::Renderer>(renderData);
+		rendererManager = std::make_unique<Graphics::Renderer>(renderData);
 
 		if (!rendererManager) {
 			Logger::warn("[Engine::initRender] rendererManager is nullptr!");

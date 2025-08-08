@@ -7,7 +7,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-namespace TEXTURE
+namespace Graphics
 {
 	uint32_t TextureManager::load(const std::string& name, const std::string &filePath, int width, int height, int nrChannels)
 	{

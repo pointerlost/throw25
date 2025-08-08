@@ -6,9 +6,9 @@
 #include "graphics/Grid/GridRenderer.h"
 
 // Forward Declarations;
-namespace CAMERA   { class Camera;			};
-namespace TEXTURE  { class TextureManager;	};
-namespace MATERIAL { class MaterialLibrary; };
+namespace Graphics   { class Camera;			};
+namespace Graphics  { class TextureManager;	};
+namespace Graphics { class MaterialLibrary; };
 namespace SHADER   { class GLShaderProgram; };
 namespace LIGHTING
 {
@@ -16,16 +16,16 @@ namespace LIGHTING
 	class LightManager;
 };
 
-namespace GLgraphics
+namespace Graphics
 {
 	
 	class RenderData
 	{
 	public:
 		RenderData(std::shared_ptr<SHADER::ShaderManager> shaderManager,
-			const std::shared_ptr<CAMERA::Camera>& camera,
-			const std::shared_ptr<TEXTURE::TextureManager>& textureManager,
-			const std::shared_ptr<MATERIAL::MaterialLibrary>& materialLib);
+			const std::shared_ptr<Graphics::Camera>& camera,
+			const std::shared_ptr<Graphics::TextureManager>& textureManager,
+			const std::shared_ptr<Graphics::MaterialLibrary>& materialLib);
 
 		~RenderData() = default;
 
@@ -45,11 +45,11 @@ namespace GLgraphics
 		[[nodiscard]] std::shared_ptr<SHADER::IShader> getShaderInterface(const std::string& name);
 		[[nodiscard]] std::shared_ptr<SHADER::GLShaderProgram>& getWrapperGLShader();
 		//std::shared_ptr<SHADER::Shader> getWrappedShader(const std::string& name);
-		[[nodiscard]] const std::shared_ptr<CAMERA::Camera> getCamera() const { return m_camera; };
-		[[nodiscard]] const std::shared_ptr<TEXTURE::TextureManager> getTextureManager() const { return m_textureManager; };
-		[[nodiscard]] std::shared_ptr<MATERIAL::MaterialLibrary> getMaterialLib();
+		[[nodiscard]] const std::shared_ptr<Graphics::Camera> getCamera() const { return m_camera; };
+		[[nodiscard]] const std::shared_ptr<Graphics::TextureManager> getTextureManager() const { return m_textureManager; };
+		[[nodiscard]] std::shared_ptr<Graphics::MaterialLibrary> getMaterialLib();
 
-		[[nodiscard]] const glm::vec3& getGlobalAmbient() const { return g_ambientLight; };
+		[[nodiscard]] glm::vec3& getGlobalAmbient() { return g_ambientLight; };
 
 		void update();
 
@@ -57,9 +57,9 @@ namespace GLgraphics
 		
 		std::shared_ptr<LIGHTING::LightManager> m_lightManager;
 		std::shared_ptr<SHADER::ShaderManager> m_shaderManager;
-		std::shared_ptr<TEXTURE::TextureManager> m_textureManager;
-		std::shared_ptr<MATERIAL::MaterialLibrary> m_material;
-		std::shared_ptr<CAMERA::Camera> m_camera;
+		std::shared_ptr<Graphics::TextureManager> m_textureManager;
+		std::shared_ptr<Graphics::MaterialLibrary> m_material;
+		std::shared_ptr<Graphics::Camera> m_camera;
 		GRID::GridRenderer* m_gridRenderer = nullptr;
 
 	private:
@@ -68,6 +68,6 @@ namespace GLgraphics
 		glm::mat4 view;
 		glm::mat4 projection;
 
-		glm::vec3 g_ambientLight;
+		glm::vec3 g_ambientLight{0.1};
 	};
 }

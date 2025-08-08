@@ -3,8 +3,8 @@
 #include <vector>
 #include <glm/gtc/type_ptr.hpp>
 
-namespace MATERIAL   { struct Material;     };
-namespace GLgraphics { class  RenderData;   };
+namespace Graphics   { struct Material;     };
+namespace Graphics { class  RenderData;   };
 namespace LIGHTING   { class  Light;		};
 namespace SCENE		 { class  SceneObject;  };
 
@@ -29,15 +29,15 @@ namespace SHADER
 		[[nodiscard]] virtual std::shared_ptr<GLShaderProgram> getGLShaderProgram() const = 0;
 		virtual void bind() = 0;
 		virtual void setLights(const std::vector<std::shared_ptr<LIGHTING::Light>>& lights) = 0;
-		virtual void setMaterial(const std::shared_ptr<MATERIAL::Material>& mat) = 0;
+		virtual void setMaterial(const std::shared_ptr<Graphics::Material>& mat) = 0;
 		virtual void setMatrices(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, const glm::vec3& cameraPos) = 0;
 
-		void setRenderDataObject(const std::shared_ptr<GLgraphics::RenderData>& renderData) { m_renderData = renderData; };
+		void setRenderDataObject(const std::shared_ptr<Graphics::RenderData>& renderData) { m_renderData = renderData; };
 
 		// virtual void setShaderInterface(const std::shared_ptr<SCENE::SceneObject>& lightObject) = 0;
 		// [[nodiscard]] virtual std::shared_ptr<SCENE::SceneObject> getShaderInterface() const = 0;
 
 	protected:
-		std::shared_ptr<GLgraphics::RenderData> m_renderData;
+		std::shared_ptr<Graphics::RenderData> m_renderData;
 	};
 }

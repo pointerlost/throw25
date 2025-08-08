@@ -5,7 +5,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <iostream>
 
-namespace CAMERA
+namespace Graphics
 {
 	enum Camera_Movement
 	{

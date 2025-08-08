@@ -2,7 +2,7 @@
 #include <iostream>
 #include <memory>
 
-namespace CAMERA { class Camera;  };
+namespace Graphics { class Camera;  };
 namespace SHADER
 {
 	class IShader;
@@ -17,7 +17,7 @@ namespace GRID
 	class GridRenderer
 	{
 	public:
-		GridRenderer(std::shared_ptr<GridData> gridData, std::shared_ptr<CAMERA::Camera> camera);
+		GridRenderer(std::shared_ptr<GridData> gridData, std::shared_ptr<Graphics::Camera> camera);
 		~GridRenderer() = default;
 
 		void draw() const;
@@ -30,7 +30,7 @@ namespace GRID
 	private:
 		std::shared_ptr<GridData> m_gridData;
 		std::shared_ptr<SHADER::IShader> m_gridShader;
-		std::shared_ptr<CAMERA::Camera> m_camera;
+		std::shared_ptr<Graphics::Camera> m_camera;
 	};
 
 

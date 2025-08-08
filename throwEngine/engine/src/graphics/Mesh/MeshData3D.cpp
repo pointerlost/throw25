@@ -1,8 +1,8 @@
-#include "graphics/Mesh/GLMeshData3D.h"
+#include "graphics/Mesh/MeshData3D.h"
 #include <glad/glad.h>
 
 
-namespace GLgraphics
+namespace Graphics
 {
 
 	void MeshData::AddSubMeshInfo(const SubMeshInfo s)

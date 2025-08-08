@@ -11,9 +11,9 @@
 
 static auto& file = core::File::get();
 
-namespace MATERIAL
+namespace Graphics
 {
-    bool MaterialLibrary::createMaterials(const std::string& filePath, TEXTURE::TextureManager& textureManager)
+    bool MaterialLibrary::createMaterials(const std::string& filePath, Graphics::TextureManager& textureManager)
     {
         std::string content = file.readFromFile(filePath);
 
@@ -75,7 +75,7 @@ namespace MATERIAL
         return true;
     }
 
-    std::shared_ptr<MATERIAL::Material> MaterialLibrary::getMaterialByName(const std::string &name) {
+    std::shared_ptr<Graphics::Material> MaterialLibrary::getMaterialByName(const std::string &name) {
         if (!m_materials.contains(name)) {
             Logger::warn("Material \"" + name + "\" not found! but returning fallback\n");
             // return default material

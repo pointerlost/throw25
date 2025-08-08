@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace TEXTURE
+namespace Graphics
 {
 	struct Texture {
 		std::string name;

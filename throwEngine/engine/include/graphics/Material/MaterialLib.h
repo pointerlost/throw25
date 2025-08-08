@@ -8,11 +8,11 @@
 #include "graphics/Textures/Textures.h"
 
 // Forward declaration
-namespace TEXTURE { class TextureManager; };
+namespace Graphics { class TextureManager; };
 
 using json = nlohmann::json;
 
-namespace MATERIAL
+namespace Graphics
 {
 
 	struct Material
@@ -24,8 +24,8 @@ namespace MATERIAL
 		glm::vec3 m_specular;
 		float m_shininess;
 
-		std::shared_ptr<TEXTURE::Texture> m_diffuseTexture;
-		std::shared_ptr<TEXTURE::Texture> m_specularTexture;
+		std::shared_ptr<Graphics::Texture> m_diffuseTexture;
+		std::shared_ptr<Graphics::Texture> m_specularTexture;
 
 		Material() = default;
 	};
@@ -35,9 +35,9 @@ namespace MATERIAL
 		MaterialLibrary() = default;
 		~MaterialLibrary() = default;
 
-		[[nodiscard]] bool createMaterials(const std::string& filePath, TEXTURE::TextureManager& textureManager);
+		[[nodiscard]] bool createMaterials(const std::string& filePath, Graphics::TextureManager& textureManager);
 
-		std::shared_ptr<MATERIAL::Material> getMaterialByName(const std::string& name);
+		std::shared_ptr<Graphics::Material> getMaterialByName(const std::string& name);
 
 		std::shared_ptr<Material> getDefaultMaterial();
 

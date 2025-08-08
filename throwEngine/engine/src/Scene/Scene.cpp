@@ -2,17 +2,7 @@
 
 #include <Scene/SceneObject.h>
 
-#include <graphics/Mesh/GLMeshFactory.h>
-
-#include "graphics/Mesh/GLMeshCube3D.h"
-
-#include "graphics/Mesh/GLMeshSphere3D.h"
-
-#include "graphics/Mesh/GLMeshCircle3D.h"
-
-#include "graphics/Mesh/GLMeshSquare3D.h"
-
-#include "graphics/Mesh/GLMeshTriangle3D.h"
+#include <graphics/Mesh/MeshFactory.h>
 
 #include "graphics/Renderer/RenderData.h"
 
@@ -22,7 +12,7 @@
 
 #include "graphics/Grid/GridSystem.h"
 
-#include <graphics/GLTransformations/Transformations.h>
+#include <graphics/Transformations/Transformations.h>
 
 #include "graphics/Lighting/LightManager.h"
 
@@ -44,13 +34,13 @@
 
 namespace SCENE
 {
-	Scene::Scene(const std::shared_ptr<GLgraphics::MeshData3D> &data3D, Input::InputContext context)
+	Scene::Scene(const std::shared_ptr<Graphics::MeshData3D> &data3D, Input::InputContext context)
 		:meshData3D(data3D), inputContext(context)
 	{
 		DEBUG_PTR(meshData3D);
 	}
 
-	void Scene::debugDrawing(const glm::mat4& view, const glm::mat4& projection, const std::shared_ptr<GLgraphics::RenderData>& renderData)
+	void Scene::debugDrawing(const glm::mat4& view, const glm::mat4& projection, const std::shared_ptr<Graphics::RenderData>& renderData)
 	{
 		//DEBUG MODE
 		for (auto& obj : m_sceneObjectsVec) {
@@ -69,29 +59,7 @@ namespace SCENE
 		}
 	}
 
-	bool Scene::SetUpResources(const std::shared_ptr<MATERIAL::MaterialLibrary>& library)
-    {
-		if (!sceneObjectFactory) {
-			Logger::error("Scene can't setup m_sceneObjectFactory is nullptr!");
-		}
-
-		if (!sceneObjectFactory->createSpotLight()) {
-			Logger::warn("Can't create spotlight object!");
-		}
-
-		if (!sceneObjectFactory->createPointLight()) {
-			Logger::warn("Can't create pointLight object!");
-		}
-
-		(void)sceneObjectFactory->createCube();
-
-        (void)sceneObjectFactory->createCube();
-
-        Logger::info("[Scene] SetUpResources successful!");
-        return true;
-    }
-
-	void Scene::initGrid(const std::shared_ptr<GLgraphics::RenderData>& renderData) const
+	void Scene::initGrid(const std::shared_ptr<Graphics::RenderData>& renderData) const
 	{
 		const auto shaderManager = renderData->getShaderManager();
 		if (!shaderManager) {
@@ -121,7 +89,7 @@ namespace SCENE
 		Logger::info("[Scene::initGrid] successful!");
 	}
 
-	void Scene::drawGrid(const glm::mat4& view, const glm::mat4& projection, const std::shared_ptr<GLgraphics::RenderData>& renderData)
+	void Scene::drawGrid(const glm::mat4& view, const glm::mat4& projection, const std::shared_ptr<Graphics::RenderData>& renderData)
 	{
 		if (const auto gridRenderer = renderData->getGridRenderer()) {
 			if (const auto shader = gridRenderer->getGridShader()) {
@@ -135,16 +103,13 @@ namespace SCENE
 		}
 	}
 
-	void Scene::drawAllObjects(const glm::mat4& view, const glm::mat4& projection, const std::shared_ptr<GLgraphics::RenderData>& renderData)
+	void Scene::drawAllObjects(const glm::mat4& view, const glm::mat4& projection, const std::shared_ptr<Graphics::RenderData>& renderData)
 	{
-		// I'll be here back later
-		// drawGrid(view, projection, renderData);
+		if (!renderData) {
+			Logger::warn("[Scene::drawAllObjects] renderData is nullptr!");
+			return;
+		}
 
-		// cleanup marked objects to delete at the beginning
-		cleanUpMarkedObjects();
-
-		// if marked any visual light object, first clear the lights before clean the scene
-		renderData->getLightManager()->cleanupExpiredLights();
 		for (const auto& obj : m_sceneObjectsVec)
 		{
 			if (!obj) {
@@ -153,17 +118,7 @@ namespace SCENE
 			}
 			obj->draw(view, projection, renderData);
 		}
-	}
-
-	std::shared_ptr<SceneObject> Scene::getObjectWithNameFromMap(const std::string& name)
-	{
-		if (m_objectIDMap.contains(name)) {
-			if (const auto it = m_sceneObjectsMap.find(m_objectIDMap[name]); (it != m_sceneObjectsMap.end()))
-				return it->second;
-		} else {
-			Logger::warn("[Scene::getObjectWithNameFromMap]: Object '" + name + "' does not exist!");
-		}
-		return {};
+		cleanUp();
 	}
 
 	uint32_t Scene::uniqueObjectIDGenerator()
@@ -174,73 +129,94 @@ namespace SCENE
 
 	void Scene::createObjectProperties(const std::shared_ptr<SceneObject>& sceneObject)
 	{
-		uint32_t uniqueID;
+		uint32_t uniqueID{};
 		if (!sceneObject) {
 			Logger::warn("[Scene::createObjectProperties] Null SceneObject passed — skipping creation.");
 			return;
 		}
+
+		// Reuse an ID if available
 		if (m_freeIDs.empty()) {
 			uniqueID = uniqueObjectIDGenerator();
 		} else {
-			uniqueID = m_freeIDs.top();  m_freeIDs.pop();
+			uniqueID = m_freeIDs.top();
+			m_freeIDs.pop();
 		}
 
 		// assign uniqueID to object itself
 		sceneObject->setID(uniqueID);
 
-		// add a scene object with ID to map
+		uint32_t assignedIndex{};
+
+		if (m_freeIndicesStack.empty()) {
+			// No free slots use push_back
+			assignedIndex = static_cast<uint32_t>(m_sceneObjectsVec.size());
+			m_sceneObjectsVec.push_back(sceneObject);
+		} else {
+			// Reuse a free slot
+			assignedIndex = m_freeIndicesStack.top();
+			m_sceneObjectsVec[assignedIndex] = sceneObject;
+			m_freeIndicesStack.pop();
+		}
+
+		// Save the index for fast lookup by name
+		m_nameIndexHash[sceneObject->getName()] = assignedIndex;
+
+		// Save in ID->Object map
 		m_sceneObjectsMap[uniqueID] = sceneObject;
-
-		// add a scene object as weak_ptr to vector
-		m_sceneObjectsVec.push_back(sceneObject);
-
-		// match name and ID for fast search and deletion
-		m_objectIDMap[sceneObject->getName()] = uniqueID;
 	}
 
-	void Scene::markObjectsToDelete(const std::string& name)
-	{
-		uint32_t objectID{};
-		// find object's id to remove it
-		if (m_objectIDMap.contains(name)) {
-			objectID = m_objectIDMap[name];
-			m_objectIDMap.erase(name);
+	void Scene::markToBeDeleted(const std::string &name) {
+		m_markForDeletion.push(name);
+	}
+
+	void Scene::cleanUp() {
+		while (!m_markForDeletion.empty()) {
+			destroyObject(m_markForDeletion.top());
+			m_markForDeletion.pop();
+		}
+	}
+
+	void Scene::destroyObject(const std::string &name) {
+
+		if (!m_nameIndexHash.contains(name)) {
+			Logger::warn("Attempted to destroy object with invalid name: " + name);
+			return;
+		}
+		// Get the object's index in the vector from the name hash
+		const auto index = m_nameIndexHash[name];
+
+		if (index >= m_sceneObjectsVec.size() && !m_sceneObjectsVec[index]) return;
+
+		// Get the object's ID before resetting
+		const auto id = m_sceneObjectsVec[index]->getID();
+
+		// Delete the object from the vector (free the slot)
+		m_sceneObjectsVec[index].reset();
+
+		// Recycle the freed index for reuse
+		m_freeIndicesStack.push(index);
+
+		// Recycle the freed ID for reuse
+		m_freeIDs.push(id);
+
+		// Remove from the ID-based map
+		if (m_sceneObjectsMap.contains(id)) {
+			m_sceneObjectsMap.erase(id);
 		} else {
-			Logger::warn("[Scene::deleteObjectFromScene] Object ID of '" + name + "' doesn't exist!");
+			Logger::warn("No object found for this ID: " + std::to_string(id));
 			return;
 		}
 
-		// mark object for lazy deletion
-		if (m_sceneObjectsMap.contains(objectID)) {
-			m_sceneObjectsMap[objectID]->markForDeletion();
-			m_needsCleanUp = true;
-		} else {
-			Logger::warn("[Scene::markObjectsToDelete]" + name + "doesn't exist in map!");
-		}
+		// Remove from the name -> index map
+		m_nameIndexHash.erase(name);
 	}
 
-	// LAZY DELETION
-	void Scene::cleanUpMarkedObjects()
-	{
-		if (!m_needsCleanUp) return;
-
-		for (auto it = m_sceneObjectsMap.begin(); it != m_sceneObjectsMap.end(); ) {
-			const auto& sceneObject = it->second;
-
-			if (sceneObject->isMarkedForDeletion()) {
-				uint32_t id = it->first;
-				it = m_sceneObjectsMap.erase(it);
-				m_freeIDs.push(id);
-			} else {
-				++it;
-			}
+	const std::shared_ptr<SceneObject> & Scene::getObjectWithNameFromMap(const std::string &name) const {
+		if (m_sceneObjectsMap.contains(m_nameIndexHash.at(name))) {
+			return m_sceneObjectsMap.at(m_nameIndexHash.at(name));
 		}
-
-		// Cleanup marked pointers from vec
-		std::erase_if(m_sceneObjectsVec,
-			[](const std::shared_ptr<SceneObject>& ptr) {
-              return ptr ? ptr->isMarkedForDeletion() : false;
-		});
+		return {};
 	}
 
 	void Scene::updateInputComponents()

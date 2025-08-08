@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 
-namespace GLgraphics { class Transformations; };
+namespace Graphics { class Transform; };
 
 namespace LIGHTING {
 	class Light;
@@ -22,11 +22,10 @@ namespace Input
 		InputComponentFactory() = default;
 		~InputComponentFactory() = default;
 		
-		static std::shared_ptr<IInputComponent> createObjectComponent(InputType type, std::shared_ptr<GLgraphics::Transformations> transform);
+		static std::shared_ptr<IInputComponent> createObjectComponent(InputType type, std::shared_ptr<Graphics::Transform> transform);
 
 		static std::shared_ptr<IInputComponent> createLightComponent(InputType type,
-			std::shared_ptr<GLgraphics::Transformations> transform,
-			std::shared_ptr<LIGHTING::Light>& light,
-			LIGHTING::LightMobility mobility);
+			std::shared_ptr<Graphics::Transform> transform,
+			std::shared_ptr<LIGHTING::Light>& light);
 	};
 } // namespace Input

@@ -5,7 +5,7 @@
 #include <unordered_map>
 
 
-namespace GLgraphics {
+namespace Graphics {
 
 	struct Vertex
 	{
@@ -65,7 +65,7 @@ namespace GLgraphics {
 		SubMeshInfo& AddMesh3DToMeshData(const std::string& name, std::vector<Vertex> v, std::vector<uint32_t> i);
 		void AddMeshDataIntoObjectMap(const std::string& name, SubMeshInfo& info);
 
-		SubMeshInfo getObjectInfo(const std::string& name) { return objectInfo.at(name); };
+		SubMeshInfo& getObjectInfo(const std::string& name) { return objectInfo.at(name); };
 
 	private:
 		std::unordered_map<std::string, SubMeshInfo> objectInfo;

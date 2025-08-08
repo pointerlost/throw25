@@ -3,7 +3,7 @@
 #include <memory>
 #include "graphics/Grid/GridRenderer.h"
 
-namespace CAMERA { class Camera;   };
+namespace Graphics { class Camera;   };
 
 namespace GRID
 {
@@ -15,7 +15,7 @@ namespace GRID
 	public:
 		GridSystem() = default;
 
-		bool initialize(std::shared_ptr<CAMERA::Camera> camera);
+		bool initialize(std::shared_ptr<Graphics::Camera> camera);
 
 		std::shared_ptr<GridData> getData();
 		GridRenderer* getRenderer();

@@ -1,7 +1,7 @@
 #include "graphics/Camera/Camera.h"
 
 
-namespace CAMERA
+namespace Graphics
 {
 
 	Camera::Camera()

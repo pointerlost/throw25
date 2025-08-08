@@ -12,7 +12,7 @@
 
 #include "graphics/Lighting/LightManager.h"
 
-#include <graphics/GLTransformations/Transformations.h>
+#include <graphics/Transformations/Transformations.h>
 
 #include "Scene/Scene.h"
 
@@ -28,11 +28,12 @@
 
 #include "core/Logger.h"
 #include "Scene/SceneObjectFactory.h"
+#include <ImGui/TransformGizmo.h>
 #define DEBUG_PTR(ptr) DEBUG::DebugForEngineObjectPointers(ptr)
 
 namespace ENGINE::UI
 {
-	ImGuiLayer::ImGuiLayer(std::shared_ptr<GLgraphics::RenderData> renderData, GLFWwindow* window)
+	ImGuiLayer::ImGuiLayer(std::shared_ptr<Graphics::RenderData> renderData, GLFWwindow* window)
 		:m_renderData(renderData), m_Window(window) {}
 	
 	void ImGuiLayer::Init(GLFWwindow* window)
@@ -99,17 +100,15 @@ namespace ENGINE::UI
 
 		if (const ImGuiScopedWindow deleteButton("Delete Object"); deleteButton) {
 			if (ImGui::Button("Delete Object")) {
-				bool anyDeleted = false;
+				const auto& lightManager = m_renderData->getLightManager();
 
-				for (const auto & sceneObject : sceneObjects) {
+				for (const auto& sceneObject : sceneObjects) {
+					if (!sceneObject) continue;
 					const std::string& name = sceneObject->getName();
 					if (m_objectUIStates[name].isOpen) {
-						scene->markObjectsToDelete(name);
-						anyDeleted = true;
+						scene->markToBeDeleted(name);
+						if (lightManager->checkLightExists(name)) lightManager->removeLight(name);
 					}
-				}
-				if (!anyDeleted) {
-					Logger::warn("[ImGuiLayer::drawSceneEditorUI] No objects were selected for deletion.");
 				}
 			}
 		}
@@ -152,19 +151,21 @@ namespace ENGINE::UI
 		// we don't have to call ImGui::End() because we are using destructor of ImGuiScopedWindow for that! (RAII pattern)
 		ImGuiScopedWindow lightingPanelWindow(panelTitle.c_str(), nullptr, ImGuiWindowFlags_None);
 
+		ImGui::ColorEdit3("GLOBAL AMBIENT",  glm::value_ptr(m_renderData->getGlobalAmbient()));
+
 		auto& io = ImGui::GetIO();
 
-		// const auto lights = m_renderData->getLightManager()->getLightsByVec();
+		const auto lights = m_renderData->getLightManager()->getLights();
 
 		const uint32_t lightSize = m_renderData->getLightManager()->getActiveLightCount();
 
 		if (lightSize <= 0) return;
 
-		// if (lights.empty()) {
-		// 	Logger::warn("lights vector are empty!");
-		// 	ImGui::Text("No lights available!");
-		// 	return;
-		// }
+		if (lights.empty()) {
+			Logger::warn("lights vector are empty!");
+			ImGui::Text("No lights available!");
+			return;
+		}
 
 		static int selectedLightIndex = 0;
 
@@ -173,13 +174,6 @@ namespace ENGINE::UI
 		if (selectedLightIndex >= lightSize) return;
 
 		/* I have to add "OBJECT DETECTION SYSTEM" to update here! */
-		/*
-
-		// find current light
-		const auto staticLights = m_renderData->getLightManager()->getStaticLights();
-		for (auto obj : staticLights) {
-			if (obj.lock() && obj.lock().get() == )
-		}
 
 		// current light
 		const auto& currentLight = lights[selectedLightIndex];
@@ -192,22 +186,20 @@ namespace ENGINE::UI
 		// 0 = Directional, 1 = Point, 2 = Spot
 		if (ImGui::SliderInt("SetLightType", &typeInt, 0, 2)) {
 			currentType = static_cast<LIGHTING::LightType>(typeInt);
-			currentLight->setLightType(currentType);
+			currentLight->setType(currentType);
 		}
 
-		ImGui::ColorEdit3("Set Ambient of Light Color",  glm::value_ptr(currentLight->getLightData()->getAmbient())  );
 		ImGui::ColorEdit3("Set Diffuse of Light Color",  glm::value_ptr(currentLight->getLightData()->getDiffuse())  );
 		ImGui::ColorEdit3("Set Specular of Light Color", glm::value_ptr(currentLight->getLightData()->getSpecular()) );
 
-		currentLight->update(currentLight->getVisualObject());
-
-		*/
+		currentLight->update(currentLight);
 	}
 
 	void ImGuiLayer::implForRenderObjects(std::vector<std::shared_ptr<SCENE::SceneObject>>& sceneObjects)
 	{
 		for (auto& obj : sceneObjects)
 		{
+			if (!obj) return;
 			const std::string& name = obj->getName();
 			auto& state = m_objectUIStates[name];
 
@@ -235,6 +227,7 @@ namespace ENGINE::UI
 		{
 			for (auto& obj : sceneObjects)
 			{
+				if (!obj) return;
 				const std::string name = obj->getName();
 				auto& state = m_objectUIStates[name];
 
@@ -268,6 +261,7 @@ namespace ENGINE::UI
 
 			if (state.isTransformOpen)
 			{
+				if (!object) return;
 				setSceneObjectTransform(object);
 			}
 		}
@@ -275,7 +269,7 @@ namespace ENGINE::UI
 
 	void ImGuiLayer::showMaterialProperties(std::shared_ptr<SCENE::SceneObject>& object, UIObjectState& state)
 	{
-		if (const ImGuiScopedMenu materialProperties("MATERIAL"); materialProperties) {
+		if (const ImGuiScopedMenu materialProperties("Graphics"); materialProperties) {
 			if (ImGui::IsItemHovered())
 			{
 				state.isMaterialOpen = true;
@@ -283,6 +277,7 @@ namespace ENGINE::UI
 
 			if (state.isMaterialOpen)
 			{
+				if (!object) return;
 				setSceneObjectMaterial(object);
 			}
 		}
@@ -300,17 +295,15 @@ namespace ENGINE::UI
 		showTransformProperties(object, state);
 	}
 
-	void ImGuiLayer::setSceneObjectMaterial(std::shared_ptr<SCENE::SceneObject>& sceneObject)
+	void ImGuiLayer::setSceneObjectMaterial(const std::shared_ptr<SCENE::SceneObject>& sceneObject)
 	{
 		const auto object = sceneObject->getShaderInterface();
-		const auto material = sceneObject->getMaterialInstance();
+		const auto& material = sceneObject->getMaterialInstance();
 
 		if (!object || !material) {
-			std::cout << "has sktrr!\n";
+			Logger::warn("[ImGuiLayer::setSceneObjectMaterial]: Scene Object has no material specified");
 			return;
 		}
-
-		auto objectType = object->getType();
 
 		// ambient
 		ImGui::SliderFloat("Set ambient  R value", &material->m_ambient.x,  0.05, 1.0);

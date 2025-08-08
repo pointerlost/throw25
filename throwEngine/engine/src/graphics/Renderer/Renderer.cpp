@@ -13,7 +13,7 @@
 #define DEBUG_PTR(ptr) DEBUG::DebugForEngineObjectPointers(ptr)
 
 
-namespace GLgraphics
+namespace Graphics
 {
 	Renderer::Renderer(const std::shared_ptr<RenderData>& renderData)
 		: m_renderData(renderData)

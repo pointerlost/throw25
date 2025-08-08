@@ -1,11 +1,11 @@
-#include "graphics/Mesh/GLMesh3D.h"
+#include "graphics/Mesh/Mesh3D.h"
 
-#include "graphics/Mesh/GLMeshData3D.h"
+#include "graphics/Mesh/MeshData3D.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-namespace GLgraphics
+namespace Graphics
 {
 
 	Mesh::Mesh(const std::shared_ptr<MeshData3D>& data) :

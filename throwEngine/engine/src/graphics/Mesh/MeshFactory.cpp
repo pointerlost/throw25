@@ -1,7 +1,7 @@
-#include "graphics/Mesh/GLMeshFactory.h"
-#include <graphics/Mesh/GLMeshData3D.h>
+#include "graphics/Mesh/MeshFactory.h"
+#include <graphics/Mesh/MeshData3D.h>
 
-namespace GLgraphics
+namespace Graphics
 {
 	MeshFactory::MeshFactory()
 	{
@@ -51,7 +51,7 @@ namespace GLgraphics
 	std::pair<std::vector<Vertex>, std::vector<uint32_t>> MeshFactory::createCube()
 	{
 		std::vector<Vertex> vertices =
-		{	// Vertices						   Normal						  Color						     TexCoords
+		{	// Vertices						                       Normal						  Color						     TexCoords
 			
 			// Front face (+Z)
 			{ glm::vec3(-0.5f, -0.5f, 0.5f),   glm::vec3 {0.0,  0.0, 1.0},   glm::vec3 {0.6f, 0.0f, 0.0f},  {0.0f, 0.0f}  },

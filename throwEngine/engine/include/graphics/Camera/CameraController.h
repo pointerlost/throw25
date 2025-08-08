@@ -4,7 +4,7 @@
 #include <GLFW/glfw3.h>
 #include "Input/InputContext.h"
 
-namespace CAMERA
+namespace Graphics
 {
 	class Camera;
 

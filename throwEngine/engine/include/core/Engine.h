@@ -3,7 +3,6 @@
 #include "core/File.h"
 #include "graphics/Renderer/Renderer.h"
 #include "graphics/Camera/CameraController.h"
-#include "graphics/GLTransformations/TransformController.h"
 #include "graphics/Shaders/ShaderManager.h"
 #include "Scene/SceneObjectFactory.h"
 #include "graphics/Grid/GridSystem.h"
@@ -15,9 +14,9 @@ static float SCR_HEIGHT = 860.f;
 
 // Forward Declarations ON
 
-namespace GLgraphics
+namespace Graphics
 {
-	class Transformations;
+	class Transform;
 	class MeshFactory;
 	class RenderData;
 }
@@ -39,9 +38,9 @@ namespace SCENE
 	class Scene;
 };
 
-namespace TEXTURE { class TextureManager; };
+namespace Graphics { class TextureManager; };
 
-namespace MATERIAL
+namespace Graphics
 {
 	class MaterialLibrary;
 };
@@ -72,27 +71,26 @@ namespace core
 
 		Input::InputContext dataInputContext;
 		
-		std::shared_ptr<GLgraphics::MeshData3D> meshData3D;
+		std::shared_ptr<Graphics::MeshData3D> meshData3D;
 
-		std::shared_ptr<GLgraphics::Transformations> transformationManager;
-		std::unique_ptr<TRANSFORM_INPUT::TransformInputSystem> transformInput;
+		std::shared_ptr<Graphics::Transform> transformationManager;
 
-		std::shared_ptr<MATERIAL::MaterialLibrary> m_MaterialLibraryPtr;
+		std::shared_ptr<Graphics::MaterialLibrary> m_MaterialLibraryPtr;
 
-		std::shared_ptr<CAMERA::Camera> cameraManager;
-		std::unique_ptr<CAMERA::CameraInputSystem> cameraInput;
+		std::shared_ptr<Graphics::Camera> cameraManager;
+		std::unique_ptr<Graphics::CameraInputSystem> cameraInput;
 
 		std::unique_ptr<SCENE::SceneObjectFactory> sceneObjectFactory;
 
-		std::shared_ptr<GLgraphics::RenderData> renderData;
+		std::shared_ptr<Graphics::RenderData> renderData;
 
-		std::unique_ptr<GLgraphics::Renderer> rendererManager;
+		std::unique_ptr<Graphics::Renderer> rendererManager;
 
 		std::shared_ptr<SHADER::ShaderManager> shaderManager;
 
 		std::shared_ptr<SCENE::Scene> scene;
 
-		std::shared_ptr<TEXTURE::TextureManager> textureManager;
+		std::shared_ptr<Graphics::TextureManager> textureManager;
 
 		std::shared_ptr<LIGHTING::LightManager> lightManager;
 

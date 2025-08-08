@@ -1,7 +1,22 @@
 project(engine)
 
 # define static engine library
-add_library(engine STATIC)
+add_library(engine STATIC
+        include/Entity.h
+        include/ComponentStorage.h
+        include/World.h
+        include/graphics/Mesh/MeshComponent.h
+        src/graphics/Mesh/MeshRenderSystem.cpp
+        include/graphics/Mesh/MeshRenderSystem.h
+        src/ComponentStorage.cpp
+        include/graphics/Transformations/TransformComponent.h
+        src/World.cpp
+        src/Math/Math.cpp
+        include/Math/Math.h
+        include/graphics/Lighting/LightComponent.h
+        include/graphics/Material/MaterialComponent.h
+        include/graphics/Camera/CameraComponent.h
+)
 
 # define header and source paths
 target_include_directories(engine
@@ -25,6 +40,7 @@ target_sources(engine PRIVATE
     include/core/Engine.h
     include/core/Window.h
     include/core/File.h
+
     include/core/Logger.h
 
     # Input
@@ -43,24 +59,16 @@ target_sources(engine PRIVATE
     include/CallBack/CallBack.h
 
     # Meshes
-    src/graphics/Mesh/GLMesh3D.cpp
-    src/graphics/Mesh/GLMeshFactory.cpp
-    src/graphics/Mesh/GLMeshData3D.cpp
-    src/graphics/Mesh/GLMeshTriangle3D.cpp
-    src/graphics/Mesh/GLMeshSquare3D.cpp
-    src/graphics/Mesh/GLMeshCube3D.cpp
-    src/graphics/Mesh/GLMeshCircle3D.cpp
-    src/graphics/Mesh/GLMeshSphere3D.cpp
+    src/graphics/Mesh/Mesh3D.cpp
+    src/graphics/Mesh/MeshFactory.cpp
+    src/graphics/Mesh/MeshData3D.cpp
+    src/graphics/Mesh/MeshRenderSystem.cpp
 
-    include/graphics/Mesh/GLMesh3D.h
-    include/graphics/Mesh/GLMeshInterface.h
-    include/graphics/Mesh/GLMeshFactory.h
-    include/graphics/Mesh/GLMeshData3D.h
-    include/graphics/Mesh/GLMeshTriangle3D.h
-    include/graphics/Mesh/GLMeshSquare3D.h
-    include/graphics/Mesh/GLMeshCube3D.h
-    include/graphics/Mesh/GLMeshCircle3D.h
-    include/graphics/Mesh/GLMeshSphere3D.h
+    include/graphics/Mesh/Mesh3D.h
+    include/graphics/Mesh/MeshInterface.h
+    include/graphics/Mesh/MeshFactory.h
+    include/graphics/Mesh/MeshData3D.h
+    include/graphics/Mesh/MeshRenderSystem.h
 
     # Shader System
     src/graphics/Shaders/ShaderProgram.cpp
@@ -125,20 +133,31 @@ target_sources(engine PRIVATE
     include/graphics/Textures/stb_image.h
 
     # ImGui Layer
+    third_party/ImGuizmo/ImGuizmo.cpp
+
     src/ImGui/ImGuiLayer.cpp
     src/ImGui/ImGuiScoped.cpp
     src/ImGui/ImGuiObjectState.cpp
+    src/ImGui/TransformGizmo.cpp
 
     include/ImGui/ImGuiLayer.h
     include/ImGui/ImGuiScoped.h
     include/ImGui/ImGuiObjectState.h
+    include/ImGui/TransformGizmo.h
 
     # Transformations
-    src/graphics/GLTransformations/Transformations.cpp
-    src/graphics/GLTransformations/TransformController.cpp
+    src/graphics/Transformations/Transformations.cpp
 
-    include/graphics/GLTransformations/Transformations.h
-    include/graphics/GLTransformations/TransformController.h
+    include/graphics/Transformations/Transformations.h
+    include/graphics/Transformations/TransformComponent.h
+
+    src/World.cpp
+    include/World.h
+
+    src/Math/Math.cpp
+    include/Math/Math.h
+
+    include/Math/RayMath.h
 )
 
 add_custom_target(copy_asset_dir
